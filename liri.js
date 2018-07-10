@@ -17,7 +17,8 @@ const client = new Twitter(keys.twitter);
 
 // function to write to log.txt
 function writeThings(writeThis){
-  fs.appendFile("log.txt", writeThis, function(err) {
+  let time=moment().format('MMM DD hh:mm')
+  fs.appendFile("log.txt", ` \r\n Log time: ${time} \r\n Logged results: ${writeThis}`, function(err) {
     if (err) {
       return console.log(err);
     }
@@ -33,7 +34,7 @@ function myTweets(){
     if(error) throw error;
     for (let i=0; i<10; i++){
       let time = tweets[i].created_at;
-    let tweetThings= `On ${moment(time).format("MMMM Do YYYY, h:mm")} Pendragon tweeted: "${tweets[i].text}"`;  
+    let tweetThings= ` \r\n     On ${moment(time).format("MMM DD hh:mm")} Pendragon tweeted: "${tweets[i].text}"`;  
       console.log(tweetThings)
       writeThings(tweetThings)
     }
@@ -62,7 +63,7 @@ function movieThis(){
   request(omdbApi, function (error, response, body) {
     if(error){console.log('error:', error);}
     let info= JSON.parse(body)
-    let movieThings = `Title: ${info.Title}
+    let movieThings = ` \r\n    Title: ${info.Title}
     Year: ${info.Year}
     Imdb Rating: ${info.Ratings[0].Value}
     Rotten Tomatoes Rating: ${info.Ratings[1].Value}
@@ -97,7 +98,7 @@ function spotifyThis(songTitle){
     }
    let trackInfo=data.tracks.items[0].album
    
-   let spotThings = `Artist: ${trackInfo.artists[0].name}
+   let spotThings = ` \r\n     Artist: ${trackInfo.artists[0].name}
      Song Name: ${songTitle}
      Spotify Link: ${trackInfo.external_urls.spotify}
      Album Name: ${trackInfo.name}`
