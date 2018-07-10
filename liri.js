@@ -15,6 +15,17 @@ const fs = require("fs");
 const spotify = new Spotify(keys.spotify);
 const client = new Twitter(keys.twitter);
 
+// function to write to log.txt
+function writeThings(writeThis){
+  fs.appendFile("log.txt", writeThis, function(err) {
+    if (err) {
+      return console.log(err);
+    }
+    console.log("log.txt was updated!");
+  });
+}
+
+
 //function to call my tweets and display them
 function myTweets(){
   let params = {count: 10}
@@ -22,10 +33,16 @@ function myTweets(){
     if(error) throw error;
     for (let i=0; i<10; i++){
       let time = tweets[i].created_at;
-    console.log(`On ${moment(time).format("MMMM Do YYYY, h:mm")} Pendragon tweeted: "${tweets[i].text}"` );  
+    let tweetThings= `On ${moment(time).format("MMMM Do YYYY, h:mm")} Pendragon tweeted: "${tweets[i].text}"`;  
+      console.log(tweetThings)
+      writeThings(tweetThings)
     }
   });
 };
+
+
+
+
 
 //function to grab movies and display their info
 function movieThis(){
@@ -45,15 +62,16 @@ function movieThis(){
   request(omdbApi, function (error, response, body) {
     if(error){console.log('error:', error);}
     let info= JSON.parse(body)
-    console.log(
-    `    Title: ${info.Title}
+    let movieThings = `Title: ${info.Title}
     Year: ${info.Year}
     Imdb Rating: ${info.Ratings[0].Value}
     Rotten Tomatoes Rating: ${info.Ratings[1].Value}
     Country of Origin: ${info.Country}
     Language: ${info.Language}
     Plot: ${info.Title}
-    Actors: ${info.Actors}`)
+    Actors: ${info.Actors}`
+    console.log(movieThings);
+    writeThings(movieThings)
   });
 }
 
@@ -79,29 +97,26 @@ function spotifyThis(songTitle){
     }
    let trackInfo=data.tracks.items[0].album
    
-  console.log(
-    `     Artist: ${trackInfo.artists[0].name}
+   let spotThings = `Artist: ${trackInfo.artists[0].name}
      Song Name: ${songTitle}
      Spotify Link: ${trackInfo.external_urls.spotify}
      Album Name: ${trackInfo.name}`
-  );
+     console.log(spotThings);
+     writeThings(spotThings);
 });
 }
 
 
 function doThis(){
-fs.readFile("random.txt", "utf8", function(error, data) {
-  if (error) {
-    return console.log(error);
-  }
-  var dataArr = data.split(",");
-  console.log(dataArr);
-  spotifyThis(dataArr[1])
-
-});
-
+  fs.readFile("random.txt", "utf8", function(error, data) {
+    if (error) {
+      return console.log(error);
+    }
+    var dataArr = data.split(",");
+    console.log(dataArr);
+    spotifyThis(dataArr[1])
+  });
 }
-
 
 
 
@@ -114,4 +129,6 @@ movieThis();
   spotifyThis(songTitle);
 } else if(process.argv[2] === 'do-what-this-says'){
   doThis();
+} else {
+  console.log("What are you looking for?")
 }
