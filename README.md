@@ -1,2 +1,2 @@
 # liri-node-app
-Finding tweets on Twitter and songs on Spotify using Node.js
+Finding tweets on Twitter, songs on Spotify. and movies on Imdb using Node.js
