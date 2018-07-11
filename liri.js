@@ -10,6 +10,7 @@ const Spotify = require('node-spotify-api');
 const request = require('request');
 const moment = require('moment');
 const fs = require("fs");
+const inquirer = require("inquirer");
 
 //setting the keys for twiiter and spotify
 const spotify = new Spotify(keys.spotify);
@@ -46,19 +47,8 @@ function myTweets(){
 
 
 //function to grab movies and display their info
-function movieThis(){
-  let movieTitle="";
-  if (process.argv[3] != null){
-    for (var i = 3; i < process.argv.length; i++) {
-      if (i > 3 && i < process.argv.length) {
-        movieTitle = movieTitle + "+" + process.argv[i];
-      } else {
-        movieTitle += process.argv[i];
-      }
-    }
-  } else {
-    movieTitle = 'Mr.Nobody'
-  }
+function movieThis(userMovie){
+  let movieTitle=userMovie;
   const omdbApi = `http://www.omdbapi.com/?apikey=trilogy&t=${movieTitle}`
   request(omdbApi, function (error, response, body) {
     if(error){console.log('error:', error);}
@@ -77,18 +67,18 @@ function movieThis(){
 }
 
 //set the songTitle variable so it can use user input and random.txt
-let songTitle = "";
-  if (process.argv[3] != null){
-    for (var i = 3; i < process.argv.length; i++) {
-      if (i > 3 && i < process.argv.length) {
-        songTitle = songTitle + "+" + process.argv[i];
-      } else {
-        songTitle += process.argv[i];
-      }
-    }
-  } else {
-    songTitle = 'The Sign'
-  }
+// let songTitle = "";
+//   if (process.argv[3] != null){
+//     for (var i = 3; i < process.argv.length; i++) {
+//       if (i > 3 && i < process.argv.length) {
+//         songTitle = songTitle + "+" + process.argv[i];
+//       } else {
+//         songTitle += process.argv[i];
+//       }
+//     }
+//   } else {
+//     songTitle = 'The Sign'
+//   }
 
 //Search for songs on spotify and display its info
 function spotifyThis(songTitle){
@@ -121,15 +111,53 @@ function doThis(){
 
 
 
-//setting the node validation
-if(process.argv[2] === 'my-tweets'){
-myTweets();
-} else if(process.argv[2] === 'movie-this'){
-movieThis();
-} else if(process.argv[2] === 'spotify-this-song'){
-  spotifyThis(songTitle);
-} else if(process.argv[2] === 'do-what-this-says'){
-  doThis();
-} else {
-  console.log("What are you looking for?")
-}
+inquirer.prompt([
+  {
+    type: 'list',
+    name: 'wantToDo',
+    message: 'What would you like to do?',
+    choices: ['Look at my tweets', 'Search for a song', 'Look up a movie', "I don't know, just do something"]
+  }
+]).then(function(inquirerResponse){
+    if(inquirerResponse.wantToDo === 'Look at my tweets'){
+      myTweets();
+    } else if (inquirerResponse.wantToDo === 'Search for a song'){
+      inquirer.prompt([
+        {
+          type: 'input',
+          name: 'songTitle',
+          message: 'What song do you want to look up?',  
+        }
+      ]).then(function(inquirerResponse){
+        // console.log(inquirerResponse.songTitle)
+        spotifyThis(inquirerResponse.songTitle);
+      })
+    } else if (inquirerResponse.wantToDo === 'Look up a movie'){
+      inquirer.prompt([
+        {
+          type: 'input',
+          name: 'userMovie',
+          message: 'What movie do you want to look up?',  
+        }
+      ]).then(function(inquirerResponse){
+        movieThis(inquirerResponse.userMovie);
+      })
+    } else if(inquirerResponse.wantToDo === "I don't know, just do something"){
+      doThis();
+    }
+  })
+
+
+
+// //setting the node validation
+// if(process.argv[2] === 'my-tweets'){
+// myTweets();
+// } else if(process.argv[2] === 'movie-this'){
+// movieThis(userMovie);
+// } else if(process.argv[2] === 'spotify-this-song'){
+//   spotifyThis(songTitle);
+// } else if(process.argv[2] === 'do-what-this-says'){
+//   doThis();
+// } else {
+//   console.log("What are you looking for?")
+// }
